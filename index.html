@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="milk-coffee">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>9Th C - All your 9th class books. One cozy place.</title>
+    <!-- Google Fonts: Headings, Body, Handwriting, Urdu, and Subject Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bungee&family=Caveat:wght@600&family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Fredoka:wght@400..700&family=Lilita+One&family=Lobster&family=Noto+Nastaliq+Urdu:wght@400..700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           TABLE OF CONTENTS:
+           1. CSS Variables & Design System (Themes, Colors, Fonts)
+           2. Base Reset & Global Styles
+           3. SVG Paper-Grain & Wavy Dividers
+           4. Loader Screen (Coffee Cup Fill & Curtains)
+           5. Sticky Navbar & Progress Bar
+           6. Hero Section & Parallax Canvas Particles
+           7. Signature Section (Pencil Writing "UbAid")
+           8. Books Section (Search, Filters, 3D Tilt Cards)
+           9. Upload Section & IndexedDB Manager
+          10. Help Section (FAQ Accordion)
+          11. Footer & Back-to-Top Pencil
+          12. Special Download Animation (Origami & Basketball Hoop)
+          13. Read Online Viewer Modal
+          14. Pomodoro Study Timer Cup & Easter Eggs
+          ========================================================================== */
+
+        /* --- 1. CSS VARIABLES & DESIGN SYSTEM --- */
+        :root {
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-hand: 'Caveat', cursive;
+            --font-urdu: 'Noto Nastaliq Urdu', serif;
+
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-theme="milk-coffee"] {
+            --bg-grad-start: #F5E9DA;
+            --bg-grad-end: #D8BFA3;
+            --surface: #FBF4EA;
+            --surface-glass: rgba(251, 244, 234, 0.85);
+            --text-primary: #1F120B;
+            --text-secondary: #6F4E37;
+            --accent: #B98B5E;
+            --accent-hover: #9E7348;
+            --mocha: #6F4E37;
+            --chocolate: #3B2418;
+            --espresso: #1F120B;
+            --card-shadow: 0 12px 32px rgba(59, 36, 24, 0.08);
+            --border-color: rgba(185, 139, 94, 0.25);
+            --pencil-color: #3B2418;
+        }
+
+        [data-theme="dark-chocolate"] {
+            --bg-grad-start: #1F120B;
+            --bg-grad-end: #3B2418;
+            --surface: #2A1A12;
+            --surface-glass: rgba(42, 26, 18, 0.85);
+            --text-primary: #FBF4EA;
+            --text-secondary: #D8BFA3;
+            --accent: #B98B5E;
+            --accent-hover: #D8BFA3;
+            --mocha: #D8BFA3;
+            --chocolate: #F5E9DA;
+            --espresso: #FBF4EA;
+            --card-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            --border-color: rgba(185, 139, 94, 0.3);
+            --pencil-color: #FBF4EA;
+        }
+
+        /* --- 2. BASE RESET & GLOBAL STYLES --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
+            color: var(--text-primary);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* Paper grain texture overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Reading Progress Bar */
+        #reading-progress {
+            position: fixed;
+            top: 0; left: 0; height: 3px; width: 0%;
+            background: var(--accent);
+            z-index: 10000;
+            transition: width 0.1s linear;
+        }
+
+        /* --- 3. SVG PAPER-GRAIN & WAVY DIVIDERS --- */
+        .wavy-divider {
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: translateZ(0);
+        }
+        .wavy-divider svg {
+            display: block;
+            width: 100%;
+            height: 60px;
+        }
+
+        /* --- 4. LOADER SCREEN --- */
+        #loader-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--espresso);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--surface);
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.5s ease;
+        }
+        #loader-screen.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .coffee-cup-loader {
+            width: 80px; height: 90px;
+            border: 4px solid var(--surface);
+            border-top: none;
+            border-radius: 0 0 40px 40px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .coffee-liquid {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 0%;
+            background: var(--accent);
+            transition: height 0.1s linear;
+        }
+        .coffee-handle {
+            position: absolute;
+            right: -22px; top: 15px;
+            width: 20px; height: 40px;
+            border: 4px solid var(--surface);
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+        }
+
+        /* --- 5. STICKY NAVBAR & PROGRESS BAR --- */
+        header.sticky-nav {
+            position: fixed;
+            top: 3px; left: 0; width: 100%;
+            z-index: 1000;
+            background: var(--surface-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition-smooth);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-family: var(--font-hand);
+            font-size: 2.2rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent);
+        }
+        .nav-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .icon-btn {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 1rem;
+        }
+        .icon-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px; height: 24px;
+        }
+        .hamburger span {
+            display: block; width: 100%; height: 3px;
+            background: var(--text-primary);
+            border-radius: 3px;
+            transition: var(--transition-smooth);
+        }
+
+        /* Font Popover */
+        .font-popover {
+            position: absolute;
+            top: 65px; right: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--card-shadow);
+            display: none;
+            z-index: 1100;
+            width: 220px;
+        }
+        .font-popover.active { display: block; }
+        .font-popover h4 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .font-option-btn {
+            display: block; width: 100%; padding: 0.5rem;
+            margin-bottom: 0.4rem; background: transparent;
+            border: 1px solid var(--border-color); border-radius: 6px;
+            color: var(--text-primary); cursor: pointer; text-align: left;
+            font-size: 0.85rem; transition: 0.2s;
+        }
+        .font-option-btn:hover { background: var(--accent); color: #fff; }
+
+        /* --- 6. HERO SECTION & PARALLAX CANVAS --- */
+        .hero {
+            position: relative;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 1.5rem 4rem;
+            text-align: center;
+            overflow: hidden;
+        }
+        #hero-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        .hero h1 span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: riseUp 0.8s forwards cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes riseUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tagline-box {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            min-height: 2.2rem;
+            font-weight: 500;
+        }
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        .btn {
+            padding: 0.85rem 2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            border: none;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(185, 139, 94, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(185, 139, 94, 0.4);
+        }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-3px);
+        }
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--surface-glass);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
+        }
+        .stat-item h3 {
+            font-size: 2rem;
+            font-family: var(--font-heading);
+            color: var(--accent);
+            margin-bottom: 0.2rem;
+        }
+        .stat-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .ubaid-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-family: var(--font-hand);
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+
+        /* --- 7. SIGNATURE SECTION (PENCIL WRITING UBAID) --- */
+        .signature-section {
+            position: relative;
+            height: 300vh;
+            background: var(--surface);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .signature-stage {
+            position: sticky;
+            top: 0;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: linear-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 100% 40px;
+        }
+        .signature-container {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            aspect-ratio: 1000 / 320;
+        }
+        #signature-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .handwriting-path {
+            fill: none;
+            stroke: var(--pencil-color);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke 0.3s;
+        }
+        .pencil-cursor {
+            position: absolute;
+            width: 50px; height: 50px;
+            pointer-events: none;
+            transform: translate(-10%, -90%) rotate(-35deg);
+            transition: transform 0.05s linear;
+            display: none; /* controlled by JS */
+            z-index: 10;
+        }
+        .signature-caption {
+            margin-top: 2rem;
+            font-family: var(--font-hand);
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .signature-caption.visible {
+            opacity: 1; transform: translateY(0);
+        }
+
+        /* --- 8. BOOKS SECTION --- */
+        .books-section {
+            padding: 6rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .section-header h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
+            margin-bottom: 0.5rem;
+        }
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        .filters-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            background: var(--surface-glass);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+        .search-sort-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+        .search-input-wrapper input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(185, 139, 94, 0.2);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        .sort-select {
+            padding: 0.8rem 1.2rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+        }
+        .subject-chips {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+        }
+        .chip {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition-smooth);
+        }
+        .chip:hover, .chip.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        /* 3D Tilt & Flip Book Card */
+        .book-card-container {
+            perspective: 1000px;
+            height: 420px;
+            cursor: pointer;
+        }
+        .book-card-inner {
+            position: relative;
+            width: 100%; height: 100%;
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-style: preserve-3d;
+            border-radius: var(--radius-md);
+            box-shadow: var(--card-shadow);
+        }
+        .book-card-container.flipped .book-card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidd
